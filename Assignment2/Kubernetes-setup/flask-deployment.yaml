@@ -3,7 +3,11 @@ kind: Deployment
 metadata:
   name: flask-deployment
 spec:
-  replicas: 1  # You can adjust the number of replicas as needed.
+  replicas: 3  # You can adjust the number of replicas as needed.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: to-do-app
@@ -17,6 +21,23 @@ spec:
         image: sheenagarg9/to-do-app:latest
         ports:
         - containerPort: 5000  # Adjust the port as per your Flask app's configuration.
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - "echo: this is a failure!!"
+                #httpGet:
+                #path: /healthz
+                #port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 20
 
 ---
 apiVersion: apps/v1
@@ -24,7 +45,11 @@ kind: Deployment
 metadata:
   name: mongodb-deployment
 spec:
-  replicas: 1  # You can adjust the number of replicas as needed.
+  replicas: 3  # You can adjust the number of replicas as needed.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: mongodb
@@ -38,3 +63,15 @@ spec:
         image: mongo:latest
         ports:
         - containerPort: 28017  # Adjust the port as per your Flask app's configuration.
+        readinessProbe:
+          httpGet: 
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 20
