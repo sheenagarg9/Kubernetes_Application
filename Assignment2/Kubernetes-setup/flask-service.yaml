@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  selector:
+    app: to-do-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000  # TargetPort should match the containerPort in your Deployment.
+  type: LoadBalancer  # Use LoadBalancer to expose the service externally on Minikube.
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-mongodb-1
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+spec:
+  selector:
+    app: mongodb
+  type: LoadBalancer
+  ports:
+    - port: 27017
+      targetPort: 27017  # TargetPort should match the containerPort in your Deployment.  # Use LoadBalancer to expose the service externally on Minikube.
